@@ -21,16 +21,16 @@ CREATE TABLE properties (
   cover_photo_url VARCHAR(255) NOT NULL,
   cost_per_night INTEGER DEFAULT 0,
   parking_spaces INTEGER DEFAULT 0,
-  num_of_bathrms INTEGER DEFAULT 0,
-  num_of_bedrms INTEGER DEFAULT 0,
+  number_of_bathrooms INTEGER DEFAULT 0,
+  number_of_bedrooms INTEGER DEFAULT 0,
   
   street varchar(255) NOT NULL,
   city varchar(255) NOT NULL,
   province varchar(255) NOT NULL,
-  postal_code varchar(255) NOT NULL,
+  post_code varchar(255) NOT NULL,
   country varchar(255) NOT NULL,
 
-  is_active BOOLEAN
+  active BOOLEAN
 );
 
  CREATE TABLE reservations (
