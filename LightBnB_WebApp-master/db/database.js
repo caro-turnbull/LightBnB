@@ -18,16 +18,23 @@ const users = require("./json/users.json");
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function (email) {
-  let resolvedUser = null;
-  for (const userId in users) {
-    const user = users[userId];
-    if (user?.email.toLowerCase() === email?.toLowerCase()) {
-      resolvedUser = user;
-    }
+const getUserWithEmail = (email, password) => {
+  return pool.query(`SELECT * FROM users WHERE email LIKE $1`, [email])
+    .then((res) => {
+      return res.rows[0]
+    })
+    .catch((err) => {console.log("get users", err.message);})
   }
-  return Promise.resolve(resolvedUser);
-};
+  
+//   let resolvedUser = null;
+//   for (const userId in users) {
+//     const user = users[userId];
+//     if (user?.email.toLowerCase() === email?.toLowerCase()) {
+//       resolvedUser = user;
+//     }
+//   }
+//   return Promise.resolve(resolvedUser);
+// };
 
 /**
  * Get a single user from the database given their id.
@@ -35,7 +42,12 @@ const getUserWithEmail = function (email) {
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function (id) {
-  return Promise.resolve(users[id]);
+  return pool.query('SELECT * FROM users where id LIKE $1', [id])
+  .then((res)=> {
+    console.log("----------------response---------------------",res.rows);
+      return res.rows[0]
+  })
+  .catch((err) => {console.log("get users", err.message);})
 };
 
 /**
@@ -44,10 +56,16 @@ const getUserWithId = function (id) {
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function (user) {
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
+  return pool.query (`INSERT INTO users
+                    (name, email, password)
+                    VALUES ($1, $2, $3)
+                    RETURNING *`
+                    ,[user.name, user.email, user.password])
+  .then((res) => {
+    console.log("----------------insert info---------------------",res);
+      return res
+  })
+  .catch((err) => {console.log("add user error", err.message);})
 };
 
 /// Reservations
@@ -69,7 +87,7 @@ const getAllReservations = function (guest_id, limit = 10) {
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function (options, limit = 10)  {
+const getAllProperties = (options, limit = 10) =>  {
 
   return pool
     .query(`SELECT * FROM properties LIMIT $1;`, [limit])
@@ -79,12 +97,6 @@ const getAllProperties = function (options, limit = 10)  {
     })
     .catch((err) => {console.log(err.message)})
 };
-//   const limitedProperties = {};
-//   for (let i = 1; i <= limit; i++) {
-//     limitedProperties[i] = properties[i];
-//   }
-//   return Promise.resolve(limitedProperties);
-// };
 
 /**
  * Add a property to the database
